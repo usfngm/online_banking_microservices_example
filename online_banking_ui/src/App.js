@@ -4,11 +4,12 @@ import { Form, Row, Col, Container, Button, Alert, Navbar, Nav, NavDropdown, For
 import axios from 'axios';
 import Spinner from 'react-spinner-material';
 import numeral from 'numeral';
-import { LOGIN_URL } from './config';
+import { LOGIN_URL, LOAN_SERVICE_URL } from './config';
 
 
 
 function App() {
+
   const [loggedIn, setLoggedIn] = useState(false);
   const [username, setUsername] = useState();
   const [password, setPassword] = useState();
@@ -27,7 +28,20 @@ function App() {
   }
 
   const calculateLoan = () => {
-
+    setLoanTotal('LOADING');
+    setMonthlyPayment('LOADING');
+    axios.post(LOAN_SERVICE_URL, {
+      'amount': loanAmount.num.value(),
+      'years': loanYears
+    }).then((data) => {
+      console.log(data);
+      setLoanTotal(data.data.total);
+      setMonthlyPayment(data.data.monthly);
+    }).catch((error) => {
+      console.log(error);
+      setLoanTotal('ERROR');
+      setMonthlyPayment('ERROR');
+    });
   }
 
   const logout = () => {
@@ -35,8 +49,12 @@ function App() {
     setTimeout(() => {
       localStorage.removeItem('loggedIn');
       setLoggedIn(false);
-      setUsername('');
-      setPassword('');
+      setUsername();
+      setPassword();
+      setLoanAmoumt({num: numeral(0)});
+      setLoanYears(1);
+      setLoanTotal();
+      setMonthlyPayment();
       setLoading(false);
     }, 750);
   }
@@ -164,13 +182,13 @@ function App() {
           </Form.Group>
           <Form.Group controlId="exampleForm.ControlSelect1">
             <Form.Label>Years of Installament</Form.Label>
-            <Form.Control 
-            as="select" 
-            value={loanYears}
-            onChange={(e) => {
-              var value = e.target.value;
-              setLoanYears(value);
-            }}
+            <Form.Control
+              as="select"
+              value={loanYears}
+              onChange={(e) => {
+                var value = e.target.value;
+                setLoanYears(value);
+              }}
             >
               <option>1</option>
               <option>2</option>
@@ -181,7 +199,7 @@ function App() {
           </Form.Group>
           <Form.Group as={Row} controlId="formPlaintextEmail">
             <Form.Label column sm="4">
-             Total after interest:
+              Total after interest:
            </Form.Label>
             <Col sm="8">
               <Form.Control style={{ paddingLeft: 10 }} disabled defaultValue="NONE" value={loanTotal} />
@@ -195,7 +213,7 @@ function App() {
               <Form.Control style={{ paddingLeft: 10 }} disabled defaultValue="NONE" value={monthlyPayment} />
             </Col>
           </Form.Group>
-          <Button onClick={() => calculateLoan()} style={{ width: '100%' }} variant="primary" type="submit">
+          <Button onClick={() => calculateLoan()} style={{ width: '100%' }} variant="primary">
             Calculate
   </Button>
         </Form>

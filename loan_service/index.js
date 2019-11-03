@@ -6,25 +6,28 @@ const cors = require('cors');
 const app = express()
 
 app.use(bodyParser.json());
-app.use(cors({ origin: true })); // << for what you just defined
+app.use(cors({ origin: true }));
 
 
 
 app.post('/', (req, res) => {
-  var username = req.body.username;
-  var password = req.body.password;
-  console.log('username = ' + username);
-  console.log('password = ' + password);
+  var amount = parseInt(req.body.amount);
+  var years = parseInt(req.body.years);
+  console.log('amount = ' + amount);
+  console.log('years = ' + years);
   setTimeout(() => {
-    if (username == 'admin' && password == 'admin') {
-      var result = {
-        'result': 'SUCCESS'
-      };
-      res.status(200).send(result);
+    if (years == 0) {
+      setTimeout(function () {
+        throw new Error('INVALID DIVISION');
+      }, 10);
+      res.status(500).send();
     }
     else {
+      var total = amount * 1.25;
+      var monthly = total / (years*12);
       var result = {
-        'result': 'FAIL'
+        'monthly': Math.ceil(monthly),
+        'total': Math.ceil(total)
       };
       res.status(200).send(result);
     }
@@ -43,10 +46,10 @@ app.use(function fiveHundredHandler(err, req, res, next) {
 
 
 // Start server
-app.listen(3001, function (err) {
+app.listen(3002, function (err) {
   if (err) {
     return console.error(err)
   }
 
-  console.log('Started at http://localhost:3001')
+  console.log('Started at http://localhost:3002')
 })
