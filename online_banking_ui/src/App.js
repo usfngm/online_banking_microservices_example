@@ -6,6 +6,7 @@ import axios from 'axios';
 import Aviator from 'aviator';
 import LoginPage from './LoginPage';
 import Spinner from 'react-spinner-material';
+import { login_service_url } from '../../config';
 
 
 
@@ -36,7 +37,7 @@ function App() {
     setLoading(true);
     setLoggingUnknownError(false);
     setLoggingError(false);
-    axios.post('http://localhost:3001', {
+    axios.post('login_service_url', {
       'username': username,
       'password': password
     }).then((data) => {
